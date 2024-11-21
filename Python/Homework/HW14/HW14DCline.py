@@ -7,7 +7,6 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 def main():
-    
 
     # Read in the data from a file
     trainingDF = pd.read_csv("HW14Training.csv")
@@ -48,33 +47,48 @@ def main():
     nbPredict = nb.predict(testAttColumns)
     knnPredict = knn.predict(testAttColumns)
     
-    # accuracy, precision, and recall using sklearn methods
+    # create array of chosen class based on majority voting
+    majorityPredict = []
+    for i in range(len(dtPredict)):
+        # if two 1's found, append 1, else append 0
+        if(dtPredict[i] + nbPredict[i] + knnPredict[i] >=2):
+            majorityPredict.append(1)
+        else:
+            majorityPredict.append(0)
+    
+    # calculate accuracy, precision, and recall using sklearn methods
     # accuracy
     dtAcc = accuracy_score(testClassColumn, dtPredict)
     nbAcc = accuracy_score(testClassColumn, nbPredict)
     knnAcc = accuracy_score(testClassColumn, knnPredict)
+    majorityAcc = accuracy_score(testClassColumn, majorityPredict)
     # precision
     dtPrecision = precision_score(testClassColumn, dtPredict)
     nbPrecision = precision_score(testClassColumn, nbPredict)
     knnPrecision = precision_score(testClassColumn, knnPredict)
+    majorityPrecision = precision_score(testClassColumn, majorityPredict)
     # recall
     dtRecall = recall_score(testClassColumn, dtPredict)
     nbRecall = recall_score(testClassColumn, nbPredict)
     knnRecall = recall_score(testClassColumn, knnPredict)
+    majorityRecall = recall_score(testClassColumn, majorityPredict)
     
-    # print accuracy, precision, and reall
-    print("Decision Tree: accuracy", dtAcc, "precision", dtPrecision, "recall", dtRecall)
-    print("Nieve Bayes: accuracy", nbAcc, "precision", nbPrecision, "recall", nbRecall)
-    print("K Nearest Neighbors: accuracy", knnAcc, "precision", knnPrecision, "recall", knnRecall)
-    
+    # print accuracy, precision, and recall for the 3 classifiers and the majority votes.
+    print("Decision Tree: \nAccuracy:", dtAcc, "\nPrecision:", dtPrecision, "\nRecall:", dtRecall,)
+    print("Nieve Bayes: \nAccuracy:", nbAcc, "\nPrecision:", nbPrecision, "\nRecall:", nbRecall)
+    print("K Nearest Neighbors: \nAccuracy:", knnAcc, "\nPrecision:", knnPrecision, "\nRecall:", knnRecall)
+    print("Majority: \nAccuracy:", majorityAcc, "\nPrecision:", majorityPrecision, "\nRecall:", majorityRecall)
+
     # create array to convert to CSV
-    output = [["ID", "DTPrediction", "NBPrediction", "KNNPrediction"]]
+    output = [["ID", "DT", "NB", "KNN", "Hybrid"]]
     for i in range(len(dtPredict)):
-        output.append([testData[i, 0], dtPredict[i], nbPredict[i], knnPredict[i]])
+        output.append([testData[i, 0], dtPredict[i], nbPredict[i], knnPredict[i], majorityPredict[i]])
     
     # write out to the CSV file
     with open("DClineHW14Results.csv", mode = "w", newline = "") as file:
         writer = csv.writer(file)
         writer.writerows(output)
+
+# end of main
 
 main()
